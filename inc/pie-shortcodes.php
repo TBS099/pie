@@ -21,6 +21,7 @@ if (!class_exists('pie_lookup')) {
                 array(
                     'lookup' => '',        // Default value for lookup
                     'ingredients' => '',   // Default value for ingredients
+                    'posts' => '5',        // Default number of posts to display
                 ),
                 $atts,
                 'pies'
@@ -38,6 +39,7 @@ if (!class_exists('pie_lookup')) {
             $lookup = !empty($url_lookup) ? $url_lookup : $shortcode_lookup;
             $ingredients = !empty($url_ingredients) ? $url_ingredients : $shortcode_ingredients;
             $paged = get_query_var('paged') ? get_query_var('paged') : 1;
+            $posts_per_page = intval($atts['posts']);
 
             // Display the form
 ?>
@@ -55,7 +57,7 @@ if (!class_exists('pie_lookup')) {
             // Arguments for WP Query
             $args = array(
                 'post_type' => 'pie',
-                'posts_per_page' => 5,
+                'posts_per_page' => $posts_per_page,
                 'paged' => $paged,
                 'meta_query' => array(),
             );
