@@ -12,18 +12,36 @@ if (!class_exists('pie_lookup')) {
             add_shortcode('pies', array($this, 'create_pie_lookup'));
         }
 
-        public function create_pie_lookup()
+        public function create_pie_lookup($atts)
         {
             ob_start();
 
-            // Get values from the form submission (GET request)
-            $lookup = isset($_GET['lookup']) ? sanitize_text_field($_GET['lookup']) : '';
-            $ingredients = isset($_GET['ingredients']) ? sanitize_text_field($_GET['ingredients']) : '';
+            // Parse shortcode attributes
+            $atts = shortcode_atts(
+                array(
+                    'lookup' => '',        // Default value for lookup
+                    'ingredients' => '',   // Default value for ingredients
+                ),
+                $atts,
+                'pies'
+            );
+
+            // Extract attributes from shortcode
+            $shortcode_lookup = sanitize_text_field($atts['lookup']);
+            $shortcode_ingredients = sanitize_text_field($atts['ingredients']);
+
+            // Get values from URL parameters
+            $url_lookup = isset($_GET['lookup']) ? sanitize_text_field($_GET['lookup']) : '';
+            $url_ingredients = isset($_GET['ingredients']) ? sanitize_text_field($_GET['ingredients']) : '';
+
+            // Use URL parameters if present, otherwise use shortcode attributes
+            $lookup = !empty($url_lookup) ? $url_lookup : $shortcode_lookup;
+            $ingredients = !empty($url_ingredients) ? $url_ingredients : $shortcode_ingredients;
             $paged = get_query_var('paged') ? get_query_var('paged') : 1;
 
             // Display the form
 ?>
-            <form method="get" action="">
+            <form method="get" action="" class="pies-form-container">
                 <label for="lookup">Search by Pie Type:</label>
                 <input type="text" name="lookup" id="lookup" value="<?php echo esc_attr($lookup); ?>" />
 
@@ -90,7 +108,8 @@ if (!class_exists('pie_lookup')) {
                 echo '<ul class="pies-list">';
                 while ($pies_query->have_posts()) {
                     $pies_query->the_post();
-                    echo '<li>' . get_the_title() . '</li>';
+                    $post_url = get_permalink();
+                    echo '<li><a href="' . esc_url($post_url) . '">' . get_the_title() . '</a></li>';
                 }
                 echo '</ul>';
 
